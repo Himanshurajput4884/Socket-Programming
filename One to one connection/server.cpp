@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string.h>
+// #include <bits/stdc++.h>
 #include <winsock.h>
 // #include <sys/socket.h>
 #define PORT 9909
@@ -35,7 +36,6 @@ void newMeassage(int nClientSocket){
     }
 }
 
-
 void process_new_req(){
     // New Connection request
     // cout<<"called\n";
@@ -44,22 +44,23 @@ void process_new_req(){
         // SOCKET accept(SOCKET s, sockaddr *addr, int *addrlen)
         int nlen = sizeof(struct sockaddr);
         int nclientsocket = accept(nsocket, NULL, &nlen);
+        
         // nsocket => this socket is listner socket, which is a channel where you receive the new request from the client but here you can't communicate with the client.
         // nclientsocket => this socket is to communicate with the client.
         // this accept() will return a new socket ID, which is the client socket id.
         if( nclientsocket > 0 ){
             // Put it into the client fd_set.
             int index = 0;
+            int count = 34;
             for(index = 0; index < 5; index++){
                 if(nArrayclient[index] == 0){
                     nArrayclient[index] = nclientsocket;
-                    send(nclientsocket, "Got the connection", 18, 0);
+                    send(nclientsocket, "Got the connection", 19, 0);
                     break;
                 }
             }
             if(index == 5){
                 cout << endl << "No space for new connection...";
-
             }
         }
     }
@@ -100,7 +101,7 @@ int main()
     {
         cout << endl
              << "Socket is not Opened...";
-             WSACleanup();
+        WSACleanup();
         exit(EXIT_FAILURE);
     }
     else

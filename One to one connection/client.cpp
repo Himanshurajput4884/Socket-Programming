@@ -52,16 +52,16 @@ int main(){
         recv(nclientsock, buffer, 255, 0);
         cout << endl << "Press Enter to see the message.";
         getchar();
-        cout<<"\n Server Message => " << buffer;
-        cout << endl << "Send Message to server : ";
+        cout<<"\n Server Message => " << buffer; 
+        recv(nclientsock, buffer, 255, 0);
+        cout << endl << "No of client => " << buffer;
+        cout << endl << " Send Message to server : ";
         while(1){
             fgets(buffer, 256, stdin);
             send(nclientsock, buffer, 256, 0);
             cout <<"\n------------------------------------------------------------------------------------\n";
             recv(nclientsock, buffer, 256, 0);
-            cout << endl << "Server Message => " << buffer <<endl << "Enter to Send Message : ";
+            cout << endl << " Server Message => " << buffer <<endl << " Enter to Send Message : ";
         }
     }
-
-
 }
