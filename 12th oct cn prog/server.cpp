@@ -124,27 +124,33 @@ void newMeassage(int nClientSocket)
                 special = true;
             }
         }
+        string respond;
         if(special){
-            cout << "\nMessage contain Special Character.\n";
+            respond = "Message contain Special Character.";
         }
         else if(alpha){
             if(decimal || intt){
-                cout << "Message contain Alphanumeric Character.\n";
+                respond = "Message contain Alphanumeric Character.\n";
             }
             else {
-                cout << "Message contain Alphabet only.\n";
+                respond= "Message contain Alphabet only.\n";
             }
         }
         else if(decimal){
-            cout << "Message contain Decimal Number.\n";
+            respond = "Message contain Decimal Number.\n";
         }
         else if(intt){
-            cout << "Message contain Numbers.\n";
+            respond = "Message contain Numbers.\n";
         }
-        cout << endl
-             << "Send message to client : ";
-        fgets(buff, 256, stdin);
+        // cout << endl
+            //  << "Send message to client : ";
+        // fgets(buff, 256, stdin);
         // encrypt(buff);
+        int i=0;
+        for(i=0; i<respond.size(); i++){
+            buff[i] = respond[i];
+        }
+        buff[i] = '\0';
         send(nClientSocket, buff, 256, 0);
         cout << "\n----------------------------------------------------------------\n";
     }
