@@ -1,77 +1,67 @@
 #include <iostream>
 #include <vector>
-#include <string.h>
+#include <string>
 #include <winsock.h>
 #define PORT 9909
 using namespace std;
 
 // g++ server.cpp -o server -lws2_32
+string key;
+string decrypt(char s[], vector<vector<char>> &data){
+    int n = strlen(s)-1;
+    int no = key.size();
+    if(no < n){
+        int i = no;
+        int j=0;
+        while(i!=n){
+            key.push_back(key[j]);
+            i++;
+            j=(j+1)%no;
+        }
+    }
+    string res  ="";
+    for(int i=0; i<n; i++){
+        int index = key[i]-'A';
+        char r;
+        for(int j=0; j<26; j++){
+            if(data[index][j] == s[i]){
+                r = j+'A';
+                break;
+            }
+        }
+        res += r;
+    }
+    return res;
+}
+
+void fill(vector<vector<char>> &data){
+    vector<char> temp(26, 'A');
+    for(int i=0; i<26; i++){
+        temp[i] = 'A'+i;
+    }
+    for(int i=0; i<26; i++){
+        int index = i;
+        for(int j=0; j<26; j++){
+            data[i][j] = temp[(index+j)%26];
+        }
+    }
+    return;
+}
 
 struct sockaddr_in srv;
 fd_set fr, fw, fe;
 int nsocket;
 int nArrayclient[5]; // array to hold the client client_socket_id;
 
-int ciph = 3;
-vector<char> smal(26), large(26);
-
-void encrypt(char buff[])
-{
-    int n = strlen(buff);
-    for (int i = 0; i < n; i++)
-    {
-        if (buff[i] == ' ')
-        {
-            continue;
-        }
-        if (buff[i] >= 'a' && buff[i] <= 'z')
-        {
-            buff[i] = smal[(buff[i] - 'a' + ciph) % 26];
-        }
-        else if (buff[i] >= 'A' && buff[i] <= 'Z')
-        {
-            buff[i] = large[(buff[i] - 'A' + ciph) % 26];
-        }
-    }
-}
-
-void decrypt(char buff[])
-{
-    int n = strlen(buff);
-    for (int i = 0; i < n; i++)
-    {
-        if (buff[i] == ' ')
-        {
-            continue;
-        }
-        if (buff[i] >= 'a' && buff[i] <= 'z')
-        {
-            int index = (buff[i] - 'a' - ciph);
-            if (index < 0)
-            {
-                index += 26;
-            }
-            buff[i] = smal[index];
-        }
-        else if (buff[i] >= 'A' && buff[i] <= 'Z')
-        {
-            int index = (buff[i] - 'A' - ciph);
-            if (index < 0)
-            {
-                index += 26;
-            }
-            buff[i] = large[index];
-        }
-    }
-}
-
 void newMeassage(int nClientSocket)
 {
     cout << endl
-         << " Processing the new message for client socket " << nClientSocket;
+         << "Processing the new message for client socket " << nClientSocket;
     char buff[256 + 1] = {
         0,
     };
+    vector<vector<char>> data(26, vector<char>(26, 'A'));
+    fill(data);
     int nret = recv(nClientSocket, buff, 256, 0);
     if (nret < 0)
     {
@@ -94,17 +84,26 @@ void newMeassage(int nClientSocket)
             closesocket(nsocket);
             return;
 		}
-        cout << endl
-             << "\n Encrypted message received from client => " << buff;
-        decrypt(buff);
-        cout << endl
-             << " Decrypted message =>  " << buff;
-        
-        cout << endl
-             << " Send message to client => ";
-        fgets(buff, 256, stdin);
-        encrypt(buff);
+        // cout << endl << buff << endl;
+        // key = convert(buff);
+        // cout<<endl<<key;
+        cout << endl << " Enter the key : ";
+        getline(cin, key);
+        cin.ignore();
+        // memset(buff, ' ', sizeof(buff));
+        // recv(nClientSocket, buff, 256, 0);
+        cout << "\n Encrypted message receive from client => "<< buff;
+        string res = decrypt(buff, data);
+        // memset(buff, ' ', sizeof(buff));
+        int k=0;
+        for(int i=0; i<res.size(); i++){
+            buff[k] = res[i];
+            k++;
+        }
+        cout << "\n Decrypted Message => " << buff << endl;
         send(nClientSocket, buff, 256, 0);
+        // fgets(buff, 256, stdin);
+        // send(nClientSocket, buff, 256, 0);
         cout << "\n----------------------------------------------------------------\n";
     }
 }
@@ -156,13 +155,13 @@ int main()
     WSADATA ws;
     if (WSAStartup(MAKEWORD(2, 2), &ws) < 0)
     {
-        cout << " WSA failed in intitalize..." << endl;
+        cout << "WSA failed in intitalize..." << endl;
         WSACleanup();
         exit(EXIT_FAILURE);
     }
     else
     {
-        cout << endl <<" WSA successfully initialize...";
+        cout << "WSA successfully initialize..." << endl;
     }
 
     // 1. Initialize the Socket
@@ -177,14 +176,9 @@ int main()
     else
     {
         cout << endl
-             << " Socket Opened Successfully...";
+             << "Socket Opened Successfully...";
     }
 
-    for (int i = 0; i < 26; i++)
-    {
-        smal[i] = 'a' + i;
-        large[i] = 'A' + i;
-    }
     // Initialize the environment for sockaddr structure
     srv.sin_family = AF_INET;
     srv.sin_port = htons(PORT);       // host to network sort
@@ -199,15 +193,16 @@ int main()
     if (nret == 0)
     {
         cout << endl
-             << " The Socket opt call successfully.";
+             << "The Socket opt call successfully.";
     }
     else
     {
         cout << endl
-             << " The Socketopt call is not success.";
+             << "The Socketopt call is not success.";
         WSACleanup();
         exit(EXIT_FAILURE);
     }
+
 
     nret = bind(nsocket, (sockaddr *)&srv, sizeof(sockaddr));
     if (nret < 0)
@@ -220,21 +215,21 @@ int main()
     else
     {
         cout << endl
-             << " Bind successfully to local port...";
+             << "Bind successfully to local port...";
     }
 
     nret = listen(nsocket, 5);
     if (nret < 0)
     {
         cout << endl
-             << " Failed to start listen at local port...";
+             << "Failed to start listen at local port...";
         WSACleanup();
         exit(EXIT_FAILURE);
     }
     else
     {
         cout << endl
-             << " Started listening to local port...";
+             << "Started listening to local port...";
     }
 
     int nMax_fd = nsocket;

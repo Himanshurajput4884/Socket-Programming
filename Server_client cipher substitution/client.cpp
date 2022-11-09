@@ -108,18 +108,18 @@ int main()
     else
     {
         cout << endl
-             << "Connected to the Server...";
+             << " Connected to the Server...";
         char buffer[255] = {
             0,
         };
         // Recieve from the server
         recv(nclientsock, buffer, 255, 0);
         cout << endl
-             << "Press Enter to see the message.";
+             << " Press Enter to see the message.";
         getchar();
         cout << "\n Server Message => " << buffer;
         cout << endl
-             << "Send Message to server : ";
+             << "\n Send Message to server => ";
         while (1)
         {
             fgets(buffer, 256, stdin);
@@ -129,15 +129,15 @@ int main()
                 break;
             }
             encrypt(buffer);
-            cout << "Encrypted : " << buffer << endl;
+            cout << "\n Encrypted message => " << buffer << endl;
             send(nclientsock, buffer, 256, 0);
             cout << "\n------------------------------------------------------------------------------------\n";
             recv(nclientsock, buffer, 256, 0);
             cout << endl
-                 << "Encrypted message from server => " << buffer << endl;
+                 << " Encrypted message from server => " << buffer << endl;
             decrypt(buffer);
-            cout << "Decrypted message from server => " << buffer << endl;
-            cout << "Send Message to server.\n";
+            cout << " Decrypted message from server => " << buffer << endl;
+            cout << " Send Message to server => ";
         }
         closesocket(nclientsock);       
     }
